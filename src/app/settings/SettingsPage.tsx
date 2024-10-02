@@ -17,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { updateProfile } from "./actions";
 import { User } from "next-auth";
+import { useSession } from "next-auth/react";
 
 interface SettingPageProps {
   user: User;
@@ -24,7 +25,8 @@ interface SettingPageProps {
 
 export default function SettingsPage({user} : SettingPageProps) {
   const { toast } = useToast();
-
+  
+  const session = useSession();
   const form = useForm<UpdateProfileValues>({
     resolver: zodResolver(updateProfileSchema),
     // TODO: Add default value from current user
@@ -35,6 +37,7 @@ export default function SettingsPage({user} : SettingPageProps) {
     try {
       await updateProfile(data);
       toast({ description: "Profile updated." });
+      session.update();
     } catch (error) {
       toast({
         variant: "destructive",
